@@ -23,22 +23,22 @@
 ### 工程目录
 
 ```
- ├─entry/src/main/ets/                     // 应用首页
- │ ├──common
- │ │  ├──constants                         
- │ │  │  └─CommonConstants.ets             // 常量类
- │ │  └──utils          
- │ │     └─Logger.ets                      // 日志打印类
- │ ├──entryability
- │ │  └─EntryAbility.ets                   // 程序入口类
- │ ├──model
- │ │  └─Model.ets                          // 模型推理
- │ └──pages                 
- │    └──Index.ets                         // 主页入口
- ├──entry/src/main/resource                // 应用静态资源
+ ├──entry/src/main/ets/                     // 应用首页
+ │  ├──common
+ │  │  ├──constants                         
+ │  │  │  └─CommonConstants.ets             // 常量类
+ │  │  └──utils          
+ │  │     └─Logger.ets                      // 日志打印类
+ │  ├──entryability
+ │  │  └─EntryAbility.ets                   // 程序入口类
+ │  ├──model
+ │  │  └─Model.ets                          // 模型推理
+ │  └──pages                 
+ │     └──Index.ets                         // 主页入口
+ ├──entry/src/main/resource                 // 应用静态资源
  │  └──rawfile
- │     └──mobileenetv2.ms                  // 模型文件
- └──entry/src/main/module.json5            // 模块配置相关
+ │     └──mobilenetv2.ms                    // 模型文件
+ └──entry/src/main/module.json5             // 模块配置相关
  
 ```
 
