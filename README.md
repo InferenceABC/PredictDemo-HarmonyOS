@@ -1,37 +1,71 @@
-# MindSporeLiteArkTS
+# **基于MindSporeLite接口实现图像分类**
 
-#### 介绍
-本示例基于MindSporeLite提供的ArkTS API，实现“端侧图像分类”示例程序，来演示端侧部署的流程。
+### 介绍
 
-#### 软件架构
-软件架构说明
+本文基于MindSporeLite提供的ArkTS API，实现“端侧图像分类”示例程序，来演示端侧部署的流程。
 
+1. 选择图像分类模型。
+2. 将模型转换成MindSporeLite模型格式。
+3. 在端侧使用MindSporeLite推理模型，显示出可能的分类结果。
 
-#### 安装教程
+### 效果预览
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+| 主页                                                        |
+|-----------------------------------------------------------|
+| <img src="screenshots/device/MindSporeLiteArkTSDemo.jpg"/> |
 
 #### 使用说明
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+1. 在主界面，可以点击photo按钮，进入相册选择图片界面；
+2. 在相册界面，选择图片，点击确定按钮；
+3. 自动进行选择图片的图像分类模型推理，部分推理结果显示在主界面。
 
-#### 参与贡献
+### 工程目录
 
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+```
+ ├─entry/src/main/ets/                     // 应用首页
+ │ ├──common
+ │ │  ├──constants                         
+ │ │  │  └─CommonConstants.ets             // 常量类
+ │ │  └──utils          
+ │ │     └─Logger.ets                      // 日志打印类
+ │ ├──entryability
+ │ │  └─EntryAbility.ets                   // 程序入口类
+ │ ├──model
+ │ │  └─Model.ets                          // 模型推理
+ │ └──pages                 
+ │    └──Index.ets                         // 主页入口
+ ├──entry/src/main/resource                // 应用静态资源
+ │  └──rawfile
+ │     └──mobileenetv2.ms                  // 模型文件
+ └──entry/src/main/module.json5            // 模块配置相关
+ 
+```
+
+### 具体实现
+
+* 本示例程序中使用的终端图像分类模型文件为mobilenetv2.ms，放置在entry\src\main\resources\rawfile工程目录下。
+
+  注：开发者可按需手工下载[MindSpore Model Zoo中图像分类模型](https://download.mindspore.cn/model_zoo/official/lite/mobilenetv2_openimage_lite/1.5/mobilenetv2.ms)。
+
+* 调用@ohos.file.picker（图片文件选择）、@ohos.multimedia.image（图片处理效果）、@ohos.file.fs（基础文件操作） 等API实现相册图片获取及图片处理。完整代码请参见Index.ets
+
+* 调用@ohos.ai.mindSporeLite (推理能力) API实现端侧推理。完整代码请参见model.ets
+
+* 调用推理函数并处理结果。完整代码请参见Index.ets
+
+### 相关权限
+
+不涉及。
+
+### 约束与限制
+
+1.本示例仅支持标准系统上运行，支持设备：华为手机。
+
+2.HarmonyOS系统：HarmonyOS NEXT Developer Beta3及以上。
+
+3.DevEco Studio版本：DevEco Studio NEXT Developer Beta3及以上。
+
+4.HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta3 SDK及以上。
 
 
-#### 特技
-
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
