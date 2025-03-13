@@ -1,4 +1,4 @@
-# **基于MindSporeLite接口实现图像分类**
+# 基于MindSporeLite接口实现图像分类
 
 ### 介绍
 
@@ -62,10 +62,10 @@
 
 1.本示例仅支持标准系统上运行，支持设备：华为手机。
 
-2.HarmonyOS系统：HarmonyOS NEXT Developer Beta3及以上。
+2.HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
 
-3.DevEco Studio版本：DevEco Studio NEXT Developer Beta3及以上。
+3.DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
 
-4.HarmonyOS SDK版本：HarmonyOS NEXT Developer Beta3 SDK及以上。
+4.HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。
 
 

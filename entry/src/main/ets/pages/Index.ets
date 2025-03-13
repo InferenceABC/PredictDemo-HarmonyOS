@@ -16,11 +16,11 @@
 import modelPredict from '../model/Model';
 import Logger from '../common/utils/Logger'
 import { resourceManager } from '@kit.LocalizationKit'
-import { fileIo, picker } from '@kit.CoreFileKit'
+import { fileIo } from '@kit.CoreFileKit'
 import { CommonConstants } from '../common/constants/CommonConstants';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { image } from '@kit.ImageKit';
-
+import { photoAccessHelper } from '@kit.MediaLibraryKit';
 
 @Entry
 @Component
@@ -34,12 +34,12 @@ struct Index {
   processImage(): void {
     let resMgr: resourceManager.ResourceManager = getContext().getApplicationContext().resourceManager;
     resMgr.getRawFileContent(CommonConstants.MODEL_NAME).then(modelBuffer => {
-      let photoSelectOptions = new picker.PhotoSelectOptions();
-      photoSelectOptions.MIMEType = picker.PhotoViewMIMETypes.IMAGE_TYPE;
+      let photoSelectOptions = new photoAccessHelper.PhotoSelectOptions();
+      photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE;
       photoSelectOptions.maxSelectNumber = 1;
-      let photoPicker = new picker.PhotoViewPicker();
+      let photoPicker = new photoAccessHelper.PhotoViewPicker();
       photoPicker.select(photoSelectOptions, async (
-        err: BusinessError, photoSelectResult: picker.PhotoSelectResult) => {
+        err: BusinessError, photoSelectResult: photoAccessHelper.PhotoSelectResult) => {
         if (err) {
           Logger.error('MS_LITE_ERR: PhotoViewPicker.select failed with err: ' + JSON.stringify(err));
           return;
