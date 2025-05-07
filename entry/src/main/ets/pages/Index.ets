@@ -21,6 +21,7 @@ import { CommonConstants } from '../common/constants/CommonConstants';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { image } from '@kit.ImageKit';
 import { photoAccessHelper } from '@kit.MediaLibraryKit';
+import { common } from '@kit.AbilityKit';
 
 @Entry
 @Component
@@ -30,9 +31,10 @@ struct Index {
   @State maxIndex: number = 0;
   @State maxArray: Array<number> = [];
   @State maxIndexArray: Array<number> = [];
+  private context = this.getUIContext().getHostContext() as common.UIAbilityContext;
 
   processImage(): void {
-    let resMgr: resourceManager.ResourceManager = getContext().getApplicationContext().resourceManager;
+    let resMgr: resourceManager.ResourceManager = this.context.getApplicationContext().resourceManager;
     resMgr.getRawFileContent(CommonConstants.MODEL_NAME).then(modelBuffer => {
       let photoSelectOptions = new photoAccessHelper.PhotoSelectOptions();
       photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE;
