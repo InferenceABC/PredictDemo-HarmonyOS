@@ -1,0 +1,75 @@
+# HarmonyOS / ArkTS specific
+build/
+hvigor/
+node_modules/
+oh_modules/
+.cache/
+
+# IDE related
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+.directory
+*.nib
+config.h
+
+# Build outputs
+dist/
+out/
+target/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.nyc_output
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# Temporary folders
+tmp/
+temp/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# User-specific files
+.vscode/settings.json
+*.userprefs
+
+# HarmonyOS build cache
+.hvigor/
+build-profile.json5.timestamp
+
+# HarmonyOS device configs
+local.properties
+signing-config.json
+
+# entry files
+entry/.preview
+entry/build

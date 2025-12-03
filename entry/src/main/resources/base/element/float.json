@@ -17,6 +17,10 @@
       "value": "32fp"
     },
     {
+      "name": "All_image_name_font_size",
+      "value": "16fp"
+    },
+    {
       "name": "last_button_margin_bottom",
       "value": "16vp"
     },
@@ -34,7 +38,7 @@
     },
     {
       "name": "image_height",
-      "value": "378vp"
+      "value": "100vp"
     },
     {
       "name": "common_font_size",

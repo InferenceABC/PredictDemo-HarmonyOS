@@ -1,24 +1,20 @@
-# 基于MindSporeLite接口实现图像分类
+# 项目阶段一Demo ReadMe
 
 ### 介绍
 
-本文基于MindSporeLite推理能力，实现了从相册选择一张图片，对图片识别处理，根据推理模型进行分类，产生图片解析的结果。帮助开发者掌握如何加载算法模型，并通过算法模型分析图像。
+该项目为模型高效推理第一阶段Demo，采用了第三方应用开发的形式，以相册应用为场景，验证模型价值评估算法的准确性和实时性。
 
-1. 选择图像分类模型。
-2. 将模型转换成MindSporeLite模型格式。
-3. 在端侧使用MindSporeLite推理模型，显示出可能的分类结果。
 
 ### 效果预览
 
-| 主页                                                        |
-|-----------------------------------------------------------|
-| <img src="screenshots/device/MindSporeLiteArkTSDemo.jpg"/> |
+| 主页                                            |
+|-----------------------------------------------|
+| <img src="screenshots/device/run_image.png"/> |
 
 #### 使用说明
 
-1. 在主界面，可以点击photo按钮，进入相册选择图片界面；
-2. 在相册界面，选择图片，点击确定按钮；
-3. 自动进行选择图片的图像分类模型推理，部分推理结果显示在主界面。
+1. 在主界面，可以点击“InFi全数据集测试”按钮，进入预存的全数据集进行测试（需要预存数据集）；
+2. 在主界面，可以点击“Picker选择图片测试”按钮，进入相册中的数据进行测试。
 
 ### 工程目录
 
@@ -37,22 +33,23 @@
  │     └──Index.ets                         // 主页入口
  ├──entry/src/main/resource                 // 应用静态资源
  │  └──rawfile
- │     └──mobilenetv2.ms                    // 模型文件
+ │     └──infi_0820_16_1024.ms               // 模型文件
+ │     └──...                                // 配置中包括更多模型可选择
  └──entry/src/main/module.json5             // 模块配置相关
  
 ```
 
 ### 具体实现
 
-* 本示例程序中使用的终端图像分类模型文件为mobilenetv2.ms，放置在entry\src\main\resources\rawfile工程目录下。
-
-  注：开发者可按需手工下载[MindSpore Model Zoo中图像分类模型](https://download.mindspore.cn/model_zoo/official/lite/mobilenetv2_openimage_lite/1.5/mobilenetv2.ms)。
+* 本示例程序中使用的模型价值评估模型文件infi_0820_16_1024.ms ，放置在entry\src\main\resources\rawfile工程目录下。
 
 * 调用@ohos.file.picker（图片文件选择）、@ohos.multimedia.image（图片处理效果）、@ohos.file.fs（基础文件操作） 等API实现相册图片获取及图片处理。完整代码请参见Index.ets
 
 * 调用@ohos.ai.mindSporeLite (推理能力) API实现端侧推理。完整代码请参见model.ets
 
 * 调用推理函数并处理结果。完整代码请参见Index.ets
+
+* 若需要预存文件，请将图片文件放置在 `filesDir +'/dataset_InFi_0813/hw_pictures'` 目录中，其中`filesDir`为应用context中的filesDir
 
 ### 相关权限
 
@@ -67,5 +64,7 @@
 3.DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
 
 4.HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。
+
+5.测试设备，Huawei Mate70pro 优享版
 
 

@@ -16,6 +16,19 @@
 {
   "app": {
     "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "C:\\Users\\dell\\.ohos\\config\\default_section1-demo_NxX5Fu3-taJskzMDucawNFrUhI5BpO3OgO2XeMyZaxQ=.cer",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001A8015D81F7B0054E1D9EB8CBFFCD7170A3F923CF99F8083B9F0992D27373754A59CD18A273756",
+          "profile": "C:\\Users\\dell\\.ohos\\config\\default_section1-demo_NxX5Fu3-taJskzMDucawNFrUhI5BpO3OgO2XeMyZaxQ=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:\\Users\\dell\\.ohos\\config\\default_section1-demo_NxX5Fu3-taJskzMDucawNFrUhI5BpO3OgO2XeMyZaxQ=.p12",
+          "storePassword": "0000001A3525A6D694454191428CADAE83D84F990DB9D24E11C5B799214E25BFA80A16BCBBCBCF21682F"
+        }
+      }
     ],
     "products": [
       {

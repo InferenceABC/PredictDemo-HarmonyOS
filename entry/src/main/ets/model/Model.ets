@@ -22,9 +22,12 @@ export default async function modelPredict(
   let context: mindSporeLite.Context = {};
   context.target = ['cpu'];
   context.cpu = {}
-  context.cpu.threadNum = 2;
+  context.cpu.threadNum = 4;
   context.cpu.threadAffinityMode = 1;
+  context.cpu.threadAffinityCoreList = [0, 1, 2]
   context.cpu.precisionMode = 'enforce_fp32';
+  // context.target = ['nnrt']
+
   let msLiteModel: mindSporeLite.Model = await mindSporeLite.loadModelFromBuffer(modelBuffer, context);
   let modelInputs: mindSporeLite.MSTensor[] = msLiteModel.getInputs();
   for (let i = 0; i < inputsBuffer.length; i++) {
@@ -33,9 +36,25 @@ export default async function modelPredict(
       modelInputs[i].setData(inputBuffer as ArrayBuffer);
     }
   }
-  Logger.info('=========MS_LITE_LOG: MS_LITE predict start=====');
+  Logger.info('=========MS_LITE_LOG: MS_LITE predict time start=====');
   let modelOutputs: mindSporeLite.MSTensor[] = await msLiteModel.predict(modelInputs);
+  Logger.info('=========MS_LITE_LOG: MS_LITE predict time end=====');
   return modelOutputs;
+
+}
+
+export async function modelTrain(
+  modelBuffer: ArrayBuffer
+) {
+  mindSporeLite.loadTrainModelFromBuffer(modelBuffer).then((mindSporeLiteModel : mindSporeLite.Model) => {
+    mindSporeLiteModel.trainMode = true;
+
+    let modelInputs : mindSporeLite.MSTensor[] = mindSporeLiteModel.getInputs();
+    console.info(modelInputs[0].name);
+    mindSporeLiteModel.runStep(modelInputs)
+
+  })
+
 }
 
 
