@@ -73,3 +73,5 @@ signing-config.json
 # entry files
 entry/.preview
 entry/build
+
+./.appanalyzer

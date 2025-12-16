@@ -42,17 +42,17 @@ export class CommonConstants{
   /**
    * Model name.
    */
-  static readonly MODEL_NAME: string = 'infi_0820_16_1024.ms';
+  static readonly MODEL_NAME: string = 'emb_gate_v3_1215_v2.onnx.ms';
 
   /**
    * Model input height.
    */
-  static readonly MODEL_INPUT_HEIGHT: number = 224;
+  static readonly MODEL_INPUT_HEIGHT: number = 640;
 
   /**
    * Model input width.
    */
-  static readonly MODEL_INPUT_WIDTH: number = 224;
+  static readonly MODEL_INPUT_WIDTH: number = 640;
 
   /**
    * Labels name map

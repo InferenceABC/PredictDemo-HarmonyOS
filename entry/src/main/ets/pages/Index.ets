@@ -44,6 +44,8 @@ async function _getArrayByUri(uri: string) : Promise<ArrayBuffer[]>{
   await pixelMap.scale(CommonConstants.MAX_ZOOM_VALUE / info.size.width,
     CommonConstants.MAX_ZOOM_VALUE / info.size.height)
 
+  Logger.info('Scale success');
+
   await pixelMap.crop({
     x: CommonConstants.X_COORDINATE,
     y: CommonConstants.Y_COORDINATE,
@@ -52,6 +54,8 @@ async function _getArrayByUri(uri: string) : Promise<ArrayBuffer[]>{
       width: CommonConstants.MODEL_INPUT_WIDTH
     }
   })
+
+  Logger.info('Crop success');
 
   info = await pixelMap.getImageInfo();
   Logger.info('MS_LITE_LOG: crop info.width = ' + info.size.width);
@@ -401,19 +405,21 @@ struct Index {
 
     let context: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
     let filesDir = context.filesDir;
-    let datasetDir = filesDir +'/dataset_InFi_0813/hw_pictures'
+    let datasetDir = filesDir +'/data_archive/250801_damoyolo_emb'
+
 
     let listFileOption: ListFileOptions = {
       recursion: false,
       listNum: 0,
       filter: {
-        suffix: [".png", ".jpg", ".jpeg"],
-        fileSizeOver: 4096
+        suffix: [".txt"]
       }
     };
     let filenames = fs.listFileSync(datasetDir, listFileOption);
-    console.info("listFile succeed");
 
+
+
+    // TODO 批量处理
     // let batchSize = 8
     //
     // for (let i = 0; i < filenames.length; i += batchSize) {
@@ -439,39 +445,46 @@ struct Index {
 
     for (let i = 0; i < filenames.length; i++) {
 
-      console.log("Time Logger: start PreProcess %s", filenames[i])
-      let input = await _getArrayByUri(datasetDir + '/' + filenames[i])
+      let filePath = datasetDir + '/' + filenames[i]
 
-      this.maxArray = []
-      this.fileName = datasetDir + '/' + filenames[i]
+      // 使用 fs.readTextSync，它直接返回解码后的字符串
+      let textContent: string = fs.readTextSync(filePath, {
+        // 确保指定正确的编码，默认为 'utf-8'
+        encoding: 'utf-8'
+      })
+      console.log('The content of file', textContent)
 
-      console.log("Time Logger: start Predict %s", filenames[i])
-      let output = await modelPredict(modelBuffer.buffer.slice(0), input)
+      const numberArray: Array<number> = textContent
+        .split(',')
+        .map(s => parseFloat(s));
 
-      console.log("Time Logger: start PostProcess %s", filenames[i])
+      // 2. 使用数字数组（Iterable<number>）创建 Float32Array
+      const inputArray: Float32Array = new Float32Array(numberArray);
+      console.log("=========DEMO_LOG: Input Data=====", inputArray)
+
+      // let input = await _getArrayByUri(datasetDir + '/' + filenames[i])
+      //
+      // this.maxArray = []
+      // this.fileName = datasetDir + '/' + filenames[i]
+      //
+      // console.log("Time Logger: start Predict %s", filenames[i])
+
+
+      let output = await modelPredict(modelBuffer.buffer.slice(0), [inputArray.buffer])
+      //
       let out = new Float32Array(output[0].getData());
 
-      let printStr = '';
-
-      for (let j = 0; j < out.length; j++) {
-        printStr += out[j].toString() + ',';
-        this.maxArray.push(Math.round(out[j] * CommonConstants.TEN_THOUSAND))
-      }
-      console.log("Time Logger: End %s", filenames[i])
-
-      Logger.info(filenames[i] + ',MS_LITE_LOG PREDICT RESULT: ' + printStr);
-
-
-
-      // await getArrayByUriDebug(datasetDir + '/' + filenames[i]).then(
-      //   input => {
-      //     modelPredict(modelBuffer.buffer.slice(0), input).then(
-      //       output => {
-      //         console.log('predict success')
-      //       }
-      //     )
-      //   }
-      // );
+      console.log("=========DEMO_LOG: Output Data=====", out)
+      //
+      // let printStr = '';
+      //
+      // for (let j = 0; j < out.length; j++) {
+      //   printStr += out[j].toString() + ',';
+      //   this.maxArray.push(Math.round(out[j] * CommonConstants.TEN_THOUSAND))
+      // }
+      // console.log("Time Logger: End %s", filenames[i])
+      //
+      // Logger.info(filenames[i] + ',MS_LITE_LOG PREDICT RESULT: ' + printStr);
     }
 
   }
