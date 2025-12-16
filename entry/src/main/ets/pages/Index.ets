@@ -268,6 +268,44 @@ function copyfile(srcFilePath: string, dstFilePath: string) {
   fs.closeSync(destFile);
 }
 
+function generateModelChoiceString(out: Float32Array): string {
+  // 1. 从数组中取出两个模型的分数
+  // 假设 out[0] 是 DamoFD 的分数
+  const damoFdScore: number = out[0];
+  // 假设 out[1] 是 Retina 的分数
+  const retinaScore: number = out[1];
+
+  let chosenModel: string;
+  let chosenScore: number;
+
+  // 2. 比较分数并决定选择哪个模型
+  if (damoFdScore > retinaScore) {
+    chosenModel = "DamoFD";
+    chosenScore = damoFdScore;
+  } else if (retinaScore > damoFdScore) {
+    chosenModel = "Retina";
+    chosenScore = retinaScore;
+  } else {
+    // 处理分数相等的情况，这里默认选择 DamoFD
+    chosenModel = "DamoFD (分数相等)";
+    chosenScore = damoFdScore;
+  }
+
+  // 3. 构建结果字符串
+  // 为了美观，我们通常将浮点数分数保留固定的小数位数（例如 4 位）
+
+  // 第一行：显示两个模型的分数
+  const scoreLine = `DamoFD分数: ${damoFdScore.toFixed(4)}，Retina分数: ${retinaScore.toFixed(4)}`;
+
+  // 第二行：显示选择结果
+  const choiceLine = `选择${chosenModel}模型，分数为 ${chosenScore.toFixed(4)}`;
+
+  // 使用 \n 实现换行
+  const resultString = scoreLine + '\n' + choiceLine;
+
+  return resultString;
+}
+
 
 @Entry
 @Component
@@ -280,6 +318,8 @@ struct Index {
   @State fileNameShow: number = 0;
   @State photoShow: number = 0;
   @State fileName: string = '';
+  @State predictResultShow: number = 0;
+  @State predictText: string = '';
   private context = this.getUIContext().getHostContext() as common.UIAbilityContext;
 
   processImage(): void {
@@ -400,7 +440,7 @@ struct Index {
     this.fileNameShow = 1;
     this.photoShow = 0;
     this.uris = [];
-    this.max = 1;
+    this.predictResultShow = 1;
 
 
     let context: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
@@ -444,6 +484,7 @@ struct Index {
     let modelBuffer = await resMgr.getRawFileContent(CommonConstants.MODEL_NAME)
 
     for (let i = 0; i < filenames.length; i++) {
+      this.fileName = filenames[i].replace(/\.txt$/, '.png')
 
       let filePath = datasetDir + '/' + filenames[i]
 
@@ -475,6 +516,10 @@ struct Index {
       let out = new Float32Array(output[0].getData());
 
       console.log("=========DEMO_LOG: Output Data=====", out)
+
+      this.predictText = generateModelChoiceString(out)
+
+
       //
       // let printStr = '';
       //
@@ -502,6 +547,16 @@ struct Index {
           left: $r('app.float.title_margin_left'),
           bottom: $r('app.float.title_margin_bottom')
         })
+      Text("人脸框检测模型")
+        .width(CommonConstants.FULL_PERCENT)
+        .font({
+          size: $r('app.float.Sub_title_font_size'),
+          weight: CommonConstants.FONT_WEIGHT_700
+        })
+        .margin({
+          left: $r('app.float.title_margin_left'),
+          bottom: $r('app.float.title_margin_bottom')
+        })
       if(this.fileNameShow){
         Text(this.fileName)
           .width($r('app.string.EntryAbility_label'))
@@ -519,51 +574,24 @@ struct Index {
             bottom: $r('app.float.image_margin_bottom')
           })
       }
-      if(this.max){
-        List(){
-          ForEach(this.maxArray, (item: number, index: number) => {
-            ListItem(){
-              Row(){
-                Text(CommonConstants.LABELS_NAME_MAP[index] + ': ')
-                  .fontSize($r('app.float.common_font_size'))
-                  .fontWeight(CommonConstants.FONT_WEIGHT_500)
-                  .fontFamily($r('app.string.Font_family_black'))
-                Text((this.maxArray[index] / 100).toString() + '%')
-                  .fontSize($r('app.float.common_font_size'))
-                  .fontWeight(CommonConstants.FONT_WEIGHT_500)
-                  .fontFamily($r('app.string.Font_family_black'))
-                  .textAlign(TextAlign.End)
-              }
-              .width(CommonConstants.FULL_PERCENT)
-              .justifyContent(FlexAlign.SpaceBetween)
-            }
-            .height($r('app.float.list_item_height'))
-          }, (item: number, index: number) => index + JSON.stringify(item))
-        }
-        .backgroundColor($r("app.color.list_background"))
-        .borderRadius($r('sys.float.corner_radius_level8'))
-        .divider({
-          strokeWidth: $r('app.float.stroke_width'),
-          color: $r('app.color.five_black')
-        })
-        .padding({
-          left: $r('app.float.small_padding'),
-          right: $r('app.float.small_padding')
-        })
-        .width($r('app.float.list_width'))
-        .height($r('app.float.list_height'))
+      if(this.predictResultShow){
+        Text(this.predictText)
+          .font({
+            size: "16fp"
+          })
       } else {
-        Blank()
-          .width($r('app.float.blank_width'))
-          .height($r('app.float.blank_height'))
+
       }
-      Button('InFi全数据集测试')
+      Button('example图片示例')
         .width($r('app.float.button_width'))
         .height($r('app.float.button_height'))
+        .margin({
+          top: $r('app.float.button_margin_top')
+        })
         .onClick(()=>{
           this.predictInput()
         })
-      Button('Picker选择图片测试')
+      Button('待开发')
         .width($r('app.float.button_width'))
         .height($r('app.float.button_height'))
         .margin({

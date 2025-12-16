@@ -42,7 +42,7 @@ export class CommonConstants{
   /**
    * Model name.
    */
-  static readonly MODEL_NAME: string = 'emb_gate_v3_1215_v2.onnx.ms';
+  static readonly MODEL_NAME: string = 'emb_gate_v3_1216.onnx.ms';
 
   /**
    * Model input height.
