@@ -268,44 +268,54 @@ function copyfile(srcFilePath: string, dstFilePath: string) {
   fs.closeSync(destFile);
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function generateModelChoiceString(out: Float32Array): string {
-  // 1. 从数组中取出两个模型的分数
-  // 假设 out[0] 是 DamoFD 的分数
-  const damoFdScore: number = out[0];
-  // 假设 out[1] 是 Retina 的分数
-  const retinaScore: number = out[1];
+  // 定义前4个模型对应的名称
+  const modelNames = [
+    'face_det_damofd_10g',
+    'face_det_retina',
+    'face_det_damofd_2.5g',
+    'face_det_damofd_34g'
+  ];
 
-  let chosenModel: string;
-  let chosenScore: number;
+  // 1. 【安全检查】处理数组越界风险
+  // 如果数组不存在，或者长度小于我们需要比较的模型数量（4个），直接返回错误信息
+  if (!out || out.length < modelNames.length) {
+    return `错误：模型输出长度不足 (需至少${modelNames.length}位，实际${out ? out.length : 0}位)`;
+  }
 
-  // 2. 比较分数并决定选择哪个模型
-  if (damoFdScore > retinaScore) {
-    chosenModel = "DamoFD";
-    chosenScore = damoFdScore;
-  } else if (retinaScore > damoFdScore) {
-    chosenModel = "Retina";
-    chosenScore = retinaScore;
-  } else {
-    // 处理分数相等的情况，这里默认选择 DamoFD
-    chosenModel = "DamoFD (分数相等)";
-    chosenScore = damoFdScore;
+  let maxScore = -Infinity;
+  let bestModelName = "";
+  const scoreStrings: string[] = [];
+
+  // 2. 遍历前4个模型，收集分数并寻找最大值
+  for (let i = 0; i < modelNames.length; i++) {
+    const currentScore = out[i];
+    const currentName = modelNames[i];
+
+    // 格式化当前分数用于展示 (例如 "face_det_damofd: 0.8845")
+    scoreStrings.push(`${currentName}: ${currentScore.toFixed(4)}`);
+
+    // 更新最大值逻辑
+    if (currentScore > maxScore) {
+      maxScore = currentScore;
+      bestModelName = currentName;
+    }
   }
 
   // 3. 构建结果字符串
-  // 为了美观，我们通常将浮点数分数保留固定的小数位数（例如 4 位）
+  // 第一行：用中文逗号连接所有分数详情
+  const scoreLine = scoreStrings.join("\n");
 
-  // 第一行：显示两个模型的分数
-  const scoreLine = `DamoFD分数: ${damoFdScore.toFixed(4)}，Retina分数: ${retinaScore.toFixed(4)}`;
-
-  // 第二行：显示选择结果
-  const choiceLine = `选择${chosenModel}模型，分数为 ${chosenScore.toFixed(4)}`;
+  // 第二行：显示最终选择
+  const choiceLine = `选择 ${bestModelName} 模型，分数为 ${maxScore.toFixed(4)}`;
 
   // 使用 \n 实现换行
-  const resultString = scoreLine + '\n' + choiceLine;
-
-  return resultString;
+  return scoreLine + '\n' + choiceLine;
 }
-
 
 @Entry
 @Component
@@ -445,7 +455,8 @@ struct Index {
 
     let context: common.UIAbilityContext = getContext(this) as common.UIAbilityContext;
     let filesDir = context.filesDir;
-    let datasetDir = filesDir +'/data_archive/250801_damoyolo_emb'
+    let datasetDir = filesDir +'/data_archive/250801_damo_emb'
+    let photoDir = filesDir +'/data_archive/250801_pictures'
 
 
     let listFileOption: ListFileOptions = {
@@ -457,34 +468,15 @@ struct Index {
     };
     let filenames = fs.listFileSync(datasetDir, listFileOption);
 
-
-
-    // TODO 批量处理
-    // let batchSize = 8
-    //
-    // for (let i = 0; i < filenames.length; i += batchSize) {
-    //   // 获取当前批次的文件（最多8个）
-    //   const batch = filenames.slice(i, i + batchSize);
-    //   console.info(`Processing batch ${i / batchSize + 1}:`, batch);
-    //
-    //   // 并行处理当前批次的所有文件
-    //   const batchPromises = batch.map(filename =>
-    //   {getArrayByUriDebug(`${datasetDir}/${filename}`)}
-    //   );
-    //
-    //   // 等待当前批次全部完成
-    //   const batchResults = await Promise.all(batchPromises);
-    //
-    //   // 处理结果（过滤掉失败的null值）
-    //   const successfulInputs = batchResults.filter(input => input !== null);
-    //   console.info(`Batch ${i / batchSize + 1} completed. Success count:`, successfulInputs.length);
-    // }
-
     let resMgr: resourceManager.ResourceManager = this.context.getApplicationContext().resourceManager;
     let modelBuffer = await resMgr.getRawFileContent(CommonConstants.MODEL_NAME)
 
     for (let i = 0; i < filenames.length; i++) {
-      this.fileName = filenames[i].replace(/\.txt$/, '.png')
+      // 显示逻辑
+      this.photoShow = 1
+      this.fileName = filenames[i].replace(/\.txt$/, '')
+      let imagePath = 'file://' + photoDir + '/' + this.fileName;
+      this.uris = [imagePath];
 
       let filePath = datasetDir + '/' + filenames[i]
 
@@ -503,14 +495,6 @@ struct Index {
       const inputArray: Float32Array = new Float32Array(numberArray);
       console.log("=========DEMO_LOG: Input Data=====", inputArray)
 
-      // let input = await _getArrayByUri(datasetDir + '/' + filenames[i])
-      //
-      // this.maxArray = []
-      // this.fileName = datasetDir + '/' + filenames[i]
-      //
-      // console.log("Time Logger: start Predict %s", filenames[i])
-
-
       let output = await modelPredict(modelBuffer.buffer.slice(0), [inputArray.buffer])
       //
       let out = new Float32Array(output[0].getData());
@@ -519,17 +503,8 @@ struct Index {
 
       this.predictText = generateModelChoiceString(out)
 
+      await sleep(100)
 
-      //
-      // let printStr = '';
-      //
-      // for (let j = 0; j < out.length; j++) {
-      //   printStr += out[j].toString() + ',';
-      //   this.maxArray.push(Math.round(out[j] * CommonConstants.TEN_THOUSAND))
-      // }
-      // console.log("Time Logger: End %s", filenames[i])
-      //
-      // Logger.info(filenames[i] + ',MS_LITE_LOG PREDICT RESULT: ' + printStr);
     }
 
   }
