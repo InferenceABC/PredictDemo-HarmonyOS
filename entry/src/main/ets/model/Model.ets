@@ -31,7 +31,7 @@ export default async function modelPredict(
   let msLiteModel: mindSporeLite.Model = await mindSporeLite.loadModelFromBuffer(modelBuffer, context);
   Logger.info('=========DEMO_LOG: Load Model=====');
   let modelInputs: mindSporeLite.MSTensor[] = msLiteModel.getInputs();
-  console.info('=========DEMO_LOG: Inputs Name =====', modelInputs[0].shape.toString())
+  console.info('=========DEMO_LOG: Inputs Shape =====', modelInputs[0].shape.toString())
   Logger.info('=========DEMO_LOG: Init modelInputs=====');
   for (let i = 0; i < inputsBuffer.length; i++) {
     let inputBuffer = inputsBuffer[i];

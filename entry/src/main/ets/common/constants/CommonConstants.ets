@@ -43,6 +43,7 @@ export class CommonConstants{
    * Model name.
    */
   static readonly MODEL_NAME: string = 'emb_gate_v5_1230.ms';
+  static readonly MODEL_NAME_TXT: string = 'mlp_gate_model_v1.ms';
 
   /**
    * Model input height.
