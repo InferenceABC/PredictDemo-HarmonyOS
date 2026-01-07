@@ -358,10 +358,24 @@ struct Index {
     };
     let filenames = fs.listFileSync(embDir, listFileOption);
 
+    // 模型选择，不同模式选择不通模型
     let resMgr: resourceManager.ResourceManager = this.context.getApplicationContext().resourceManager;
 
-    let modelName = (this.currentMode === 2) ? CommonConstants.MODEL_NAME_TXT : CommonConstants.MODEL_NAME;
+    let modelName = ''
+    switch (this.currentMode) {
+      case 0 :
+        modelName = CommonConstants.MODEL_NAME_V4
+        break;
+      case 1 :
+        modelName = CommonConstants.MODEL_NAME_V5
+        break;
+      case 2 :
+        modelName = CommonConstants.MODEL_NAME_TXT
+        break;
+    }
+    // let modelName = (this.currentMode === 2) ? CommonConstants.MODEL_NAME_TXT : CommonConstants.MODEL_NAME;
     let modelBuffer = await resMgr.getRawFileContent(modelName);
+
 
     for (let i = 0; i < filenames.length; i++) {
 
@@ -428,7 +442,7 @@ struct Index {
       }
 
 
-      await sleep(500); // 慢一点，方便看清效果
+      await sleep(100); // 慢一点，方便看清效果
     }
 
   }
