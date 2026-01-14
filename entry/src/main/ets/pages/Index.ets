@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import modelPredict from '../model/Model';
+import {modelLoad, modelPredict, modelLoadPredict} from '../model/Model';
 import Logger from '../common/utils/Logger'
 import { resourceManager } from '@kit.LocalizationKit'
 import { fileIo } from '@kit.CoreFileKit'
@@ -375,8 +375,9 @@ struct Index {
     }
     // let modelName = (this.currentMode === 2) ? CommonConstants.MODEL_NAME_TXT : CommonConstants.MODEL_NAME;
     let modelBuffer = await resMgr.getRawFileContent(modelName);
+    let model = await modelLoad(modelBuffer.buffer.slice(0))
 
-
+    let startTime = Date.now();
     for (let i = 0; i < filenames.length; i++) {
 
       // 循环守卫：如果当前 ID 不等于全局 ID，说明外界切换了模式或重启了任务
@@ -424,9 +425,12 @@ struct Index {
 
       // --- C. 模型推理 ---
       // 注意：inputArray.buffer 传给底层
-      let output = await modelPredict(modelBuffer.buffer.slice(0), [inputArray.buffer]);
+
+      let output = await modelPredict(model, [inputArray.buffer]);
       let out = new Float32Array(output[0].getData());
+
       console.log("========= Output Data =====", out);
+
 
       // --- D. 结果展示 ---
       switch (this.currentMode) {
@@ -442,8 +446,10 @@ struct Index {
       }
 
 
-      await sleep(100); // 慢一点，方便看清效果
+      await sleep(1); // 慢一点，方便看清效果
     }
+    let endTime = Date.now();
+    console.info(`[Inference Profile] File Number: ${filenames.length}, Time: ${endTime - startTime}ms`);
 
   }
 
@@ -499,7 +505,7 @@ struct Index {
       console.log("=========DEMO_LOG: Input Data=====", inputArray)
 
 
-      let output = await modelPredict(modelBuffer.buffer.slice(0), [inputArray.buffer])
+      let output = await modelLoadPredict(modelBuffer.buffer.slice(0), [inputArray.buffer])
       //
       let out = new Float32Array(output[0].getData());
 

@@ -1,70 +1,123 @@
-# 项目阶段一Demo ReadMe
+# AI模型推理演示应用
 
-### 介绍
+## 项目简介
 
-该项目为模型高效推理第一阶段Demo，采用了第三方应用开发的形式，以相册应用为场景，验证模型价值评估算法的准确性和实时性。
+这是一个基于HarmonyOS开发的AI模型推理演示应用，支持图像和文本两种模态的智能分析。该应用通过预先训练的AI模型对输入数据进行推理，实现模型选择、图像增强和文本路由等功能。
 
+## 功能特性
 
-### 效果预览
+### 1. 图像模态单模型任务
+- **功能**：人脸框检测模型选择
+- **支持模型**：
+  - face_det_damofd_10g
+  - face_det_retina
+  - face_det_damofd_2.5g
+  - face_det_damofd_34g
+- **工作原理**：对输入的人脸特征向量进行推理，计算各模型的得分，选择得分最高的模型作为最优方案
 
-| 主页                                            |
-|-----------------------------------------------|
-| <img src="screenshots/device/run_image.png"/> |
+### 2. 图像模态多模型任务
+- **功能**：人像优化多模型任务选择
+- **支持模型组**：
+  - **人脸检测组**（ID 1-4）：Damoyolo、RetinaFace、Damofd 2.5G、Damofd 3.4G
+  - **图像调色组**（ID 5-6）：CSRNet、DeepLPFNet
+  - **图像去噪组**（ID 7）：NAFNet
+  - **人像美化组**（ID 8-9）：UNet、FBBR
+- **工作原理**：对各组内模型进行内部选拔，然后按得分排序生成推荐执行顺序
 
-#### 使用说明
+### 3. 文本模态任务
 
-1. 在主界面，可以点击“InFi全数据集测试”按钮，进入预存的全数据集进行测试（需要预存数据集）；
-2. 在主界面，可以点击“Picker选择图片测试”按钮，进入相册中的数据进行测试。
+- **功能**：文本模态模型选择
+- **工作原理**：基于sigmoid激活函数计算文本上云概率，当概率≥0.5时发送至云端大模型处理，否则留在端侧处理
 
-### 工程目录
+## 技术架构
 
-```
- ├──entry/src/main/ets/                     // 应用首页
- │  ├──common
- │  │  ├──constants                         
- │  │  │  └─CommonConstants.ets             // 常量类
- │  │  └──utils          
- │  │     └─Logger.ets                      // 日志打印类
- │  ├──entryability
- │  │  └─EntryAbility.ets                   // 程序入口类
- │  ├──model
- │  │  └─Model.ets                          // 模型推理
- │  └──pages                 
- │     └──Index.ets                         // 主页入口
- ├──entry/src/main/resource                 // 应用静态资源
- │  └──rawfile
- │     └──infi_0820_16_1024.ms               // 模型文件
- │     └──...                                // 配置中包括更多模型可选择
- └──entry/src/main/module.json5             // 模块配置相关
- 
-```
+### 核心功能模块
+- **模型推理**：集成modelPredict模块进行AI模型推理
+- **激活函数**：使用sigmoid函数处理模型输出
+- **数据处理**：支持从文件系统读取特征向量数据
+- **UI界面**：响应式界面设计，支持多种显示模式
 
-### 具体实现
+### 数据流程
+1. 从本地文件系统读取预处理的特征向量数据（.txt格式）
+2. 将数据转换为Float32Array格式作为模型输入
+3. 调用相应的AI模型进行推理
+4. 解析模型输出结果并生成可读的分析报告
+5. 在UI界面上展示原始数据和推理结果
 
-* 本示例程序中使用的模型价值评估模型文件infi_0820_16_1024.ms ，放置在entry\src\main\resources\rawfile工程目录下。
+## 用户界面
 
-* 调用@ohos.file.picker（图片文件选择）、@ohos.multimedia.image（图片处理效果）、@ohos.file.fs（基础文件操作） 等API实现相册图片获取及图片处理。完整代码请参见Index.ets
+### 模式选择
+- **单模型模式**：专注于单一模型选择
+- **多模型模式**：支持多模型协同任务
+- **文本推理模式**：处理文本数据的云端路由决策
 
-* 调用@ohos.ai.mindSporeLite (推理能力) API实现端侧推理。完整代码请参见model.ets
+### 主要组件
+- **模式切换单选框**：快速切换不同推理模式
+- **数据展示区**：显示原始图像或文本内容
+- **推理结果显示区**：展示详细的模型分析结果
+- **控制按钮**：提供"数据集批量测试"和"单图测试"功能
 
-* 调用推理函数并处理结果。完整代码请参见Index.ets
+## 使用方法
 
-* 若需要预存文件，请将图片文件放置在 `filesDir +'/dataset_InFi_0813/hw_pictures'` 目录中，其中`filesDir`为应用context中的filesDir
+### 批量测试
+点击"数据集批量测试"按钮，应用将遍历指定目录下的所有特征向量文件，依次进行推理并展示结果。
 
-### 相关权限
+### 单项测试
+点击"单图测试（测试用）"按钮，可对单个数据样本进行快速测试。
 
-不涉及。
+## 技术特点
 
-### 约束与限制
+- **多模态支持**：同时支持图像和文本数据处理
+- **智能调度**：根据任务类型自动选择合适的AI模型
+- **实时反馈**：提供详细的推理过程和结果展示
+- **灵活配置**：支持多种模型和参数配置
+- **性能优化**：采用异步处理和任务ID管理机制，确保界面流畅性
 
-1.本示例仅支持标准系统上运行，支持设备：华为手机。
+## 文件结构
+- 特征向量数据存储在`/data_archive/`目录下
+- 模型文件通过ResourceManager加载
+- 支持多种数据格式和编码方式
 
-2.HarmonyOS系统：HarmonyOS 5.0.0 Release及以上。
+## 适用场景
 
-3.DevEco Studio版本：DevEco Studio 5.0.0 Release及以上。
+- AI模型性能对比测试
+- 智能设备上的边缘计算推理
+- 多模态AI应用原型验证
+- 云端-边缘协同计算策略验证
 
-4.HarmonyOS SDK版本：HarmonyOS 5.0.0 Release SDK及以上。
+## 变量说明
 
-5.测试设备，Huawei Mate70pro 优享版
+### 状态变量 (@State)
+- `currentMode`: 当前工作模式 (0-单模型, 1-多模型, 2-文本推理)
+- `fileNameShow`: 控制文件名显示 (0-隐藏, 1-显示)
+- `photoShow`: 控制图片显示 (0-隐藏, 1-显示)
+- `textShow`: 控制文本显示 (0-隐藏, 1-显示)
+- `predictResultShow`: 控制预测结果显示 (0-隐藏, 1-显示)
+- `fileName`: 当前处理的文件名
+- `uris`: 图片资源URI数组
+- `textContent`: 文本内容字符串
+- `predictText`: 预测结果文本
+- `taskId`: 任务ID，用于标记当前运行的任务版本
 
+### 全局常量
+- `CommonConstants.MODEL_NAME_V4`: V4版本模型名称
+- `CommonConstants.MODEL_NAME_V5`: V5版本模型名称
+- `CommonConstants.MODEL_NAME_TXT`: 文本模型名称
+- `CommonConstants.FULL_PERCENT`: 100%宽度常量
+- `CommonConstants.FONT_WEIGHT_700`: 字体粗细700
 
+### 模型相关变量
+- `models`: 包含9个模型信息的数组，每个模型包含ID、索引、名称、组别和描述
+- `inputArray`: 输入模型的Float32Array格式数据
+- `output`: 模型推理输出结果
+- `out`: 输出数据的Float32Array格式
+
+### 配置变量
+- `enableThreshold`: 是否开启人脸检测阈值判断 (true/false)
+- `threshold`: 上云概率阈值 (默认0.5)
+- `maxScore`: 最大分数值
+- `maxFaceScore`: 人脸检测最大分数值
+
+### 工具函数
+- `sigmoid(x)`: Sigmoid激活函数，用于计算概率
+- `sleep(ms)`: 延迟函数，用于控制界面刷新速度
