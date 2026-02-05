@@ -16,17 +16,53 @@
 import { mindSporeLite } from '@kit.MindSporeLiteKit'
 import Logger from '../common/utils/Logger';
 
-export default async function modelPredict(
-  modelBuffer: ArrayBuffer, inputsBuffer: ArrayBuffer[]): Promise<mindSporeLite.MSTensor[]> {
-
+function getLiteContext(deviceType: 'cpu' | 'npu' = 'cpu'): mindSporeLite.Context {
   let context: mindSporeLite.Context = {};
-  context.target = ['cpu'];
-  context.cpu = {}
-  context.cpu.threadNum = 4;
-  context.cpu.threadAffinityMode = 1;
-  context.cpu.threadAffinityCoreList = [0, 1, 2]
-  context.cpu.precisionMode = 'enforce_fp32';
-  // context.target = ['nnrt']
+  if (deviceType === 'npu') {
+    context.target = ['nnrt'];
+    context.nnrt = {};
+  } else {
+    context.target = ['cpu'];
+    context.cpu = {
+      threadNum: 4,
+      threadAffinityMode: 1,
+      threadAffinityCoreList: [0, 1, 2],
+      precisionMode: 'enforce_fp32'
+    };
+  }
+  return context;
+}
+
+export async function modelLoad(modelBuffer: ArrayBuffer, deviceType: 'cpu' | 'npu' = 'cpu'){
+  let context = getLiteContext(deviceType)
+
+  let msLiteModel: mindSporeLite.Model = await mindSporeLite.loadModelFromBuffer(modelBuffer, context);
+  Logger.info('=========DEMO_LOG: Load Model=====');
+  let modelInputs: mindSporeLite.MSTensor[] = msLiteModel.getInputs();
+  console.info('=========DEMO_LOG: Inputs Shape =====', modelInputs[0].shape.toString())
+  return msLiteModel
+}
+
+export async function modelPredict(msLiteModel: mindSporeLite.Model, inputsBuffer: ArrayBuffer[]): Promise<mindSporeLite.MSTensor[]>{
+  let modelInputs: mindSporeLite.MSTensor[] = msLiteModel.getInputs();
+  for (let i = 0; i < inputsBuffer.length; i++) {
+    let inputBuffer = inputsBuffer[i];
+    if (inputBuffer != null) {
+      modelInputs[i].setData(inputBuffer as ArrayBuffer);
+    }
+  }
+  Logger.info('=========MS_LITE_LOG: Set Data=====');
+
+  Logger.info('=========MS_LITE_LOG: MS_LITE predict time start=====');
+  let modelOutputs: mindSporeLite.MSTensor[] = await msLiteModel.predict(modelInputs);
+  Logger.info('=========MS_LITE_LOG: MS_LITE predict time end=====');
+  return modelOutputs;
+}
+
+export async function modelLoadPredict(
+  modelBuffer: ArrayBuffer, inputsBuffer: ArrayBuffer[], deviceType: 'cpu' | 'npu' = 'cpu'): Promise<mindSporeLite.MSTensor[]> {
+
+  let context = getLiteContext(deviceType)
 
   let msLiteModel: mindSporeLite.Model = await mindSporeLite.loadModelFromBuffer(modelBuffer, context);
   let modelInputs: mindSporeLite.MSTensor[] = msLiteModel.getInputs();
@@ -36,11 +72,10 @@ export default async function modelPredict(
       modelInputs[i].setData(inputBuffer as ArrayBuffer);
     }
   }
-  Logger.info('=========MS_LITE_LOG: MS_LITE predict time start=====');
+  Logger.info('=========MS_LITE_LOG: MS_LITE predict start=====');
   let modelOutputs: mindSporeLite.MSTensor[] = await msLiteModel.predict(modelInputs);
-  Logger.info('=========MS_LITE_LOG: MS_LITE predict time end=====');
+  Logger.info('=========MS_LITE_LOG: MS_LITE predict end=====');
   return modelOutputs;
-
 }
 
 export async function modelTrain(
@@ -56,5 +91,6 @@ export async function modelTrain(
   })
 
 }
+
 
 
